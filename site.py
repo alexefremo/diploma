@@ -20,39 +20,40 @@ def blog_index():
     db = connection.diploma
     test = db.testinput
 
-    username = login_check()  # see if user is logged in
+    username = login_check()  # проверяем залогинен ли пользователь
 
     if (username == None):
-        print "welcome: can't identify user...redirecting to signup"
+        print "Такого пользователя не существует: обратитесь в тех. поддержку или попробуйте еще раз"
         bottle.redirect("/login")
 
     cursor = test.find()
     l=[]
     
     for doc in cursor:
-            
         l.append({'a':doc['a'], 'b':doc['b'], 'c':doc['c']})
-
 
     return bottle.template('home', dict(data=l,username=username))
 
-# displays the initial blog signup form
-@bottle.get('/signup')
+# форма добавления пользователя
+@bottle.get('/adduser')
 def present_signup():
+    
+    login_check()
+    
     return bottle.template("signup", 
                            dict(username="", password="", 
                                 password_error="", 
                                 email="", username_error="", email_error="",
                                 verify_error =""))
 
-# displays the initial blog login form
+# показываем форму логинки
 @bottle.get('/login')
 def present_login():
     return bottle.template("login", 
                            dict(username="", password="", 
                                 login_error=""))
 
-# handles a login request
+# обрабатываем риквест из логин-формы
 @bottle.post('/login')
 def process_login():
 
@@ -71,9 +72,7 @@ def process_login():
 
         cookie = user.make_secure_val(session_id)
 
-        # Warning, if you are running into a problem whereby the cookie being set here is 
-        # not getting set on the redirct, you are probably using the experimental version of bottle (.12). 
-        # revert to .11 to solve the problem.
+        # не работает с bottle .12, откатитесь на версию .11
         bottle.response.set_cookie("session", cookie)
         
         bottle.redirect("/")
@@ -109,7 +108,7 @@ def process_logout():
             bottle.redirect("/signup")
             
         else:
-            # remove the session
+            # удаляем сессию
 
             user.end_session(connection, session_id)
 
@@ -121,7 +120,7 @@ def process_logout():
             bottle.redirect("/signup")
 
 
-@bottle.post('/signup')
+@bottle.post('/adduser')
 def process_signup():
 
     connection = pymongo.Connection(connection_string, safe=True)
@@ -149,7 +148,7 @@ def process_signup():
         return bottle.template("signup", errors)
 
 
-# will check if the user is logged in and if so, return the username. otherwise, it returns None
+# проверяем залогинен ли пользователь и возвращаем username, если пользователь не залогинен – возвращает None
 def login_check():
     connection = pymongo.Connection(connection_string, safe=True)
     cookie = bottle.request.get_cookie("session")
