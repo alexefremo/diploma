@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>My Blog</title>
+<title>Диплом Сани Гончарова</title>
 </head>
 <body>
 
 %if (username != None):
-Добро пожаловать, {{username}}        <a href="/logout">Logout</a>
+Сменить пользователя — <a href="/logout">Logout</a>
 %end
 
-<h1>Домашняя страница</h1>
+%if (username == 'luzlol'):
+<h1>Админская панель</h1>
+%else:
+<h1>Здравствуйте, {{username}}!</h1>
+%end
 
-<ul>
-<li></li>
-<li></li>
-<li></li>
-</ul>
 <table>
 %for doc in data:
 <tr>
@@ -26,5 +25,3 @@
 
 </body>
 </html>
-
-

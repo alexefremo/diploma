@@ -14,9 +14,9 @@ import user
 
 connection_string = "mongodb://localhost"
 
-@bottle.route('/')
+@bottle.get('/')
 def blog_index():
-    connection = pymongo.Connection(connection_string, safe=True)
+    connection = pymongo.MongoClient(connection_string)
     db = connection.diploma
     test = db.testinput
 
@@ -38,7 +38,7 @@ def blog_index():
 @bottle.get('/adduser')
 def present_signup():
     
-    login_check()
+    username = login_check()
     
     return bottle.template("signup", 
                            dict(username="", password="", 
@@ -57,7 +57,7 @@ def present_login():
 @bottle.post('/login')
 def process_login():
 
-    connection = pymongo.Connection(connection_string, safe=True)
+    connection = pymongo.MongoClient(connection_string)
 
     username = bottle.request.forms.get("username")
     password = bottle.request.forms.get("password")
@@ -92,7 +92,7 @@ def present_internal_error():
 @bottle.get('/logout')
 def process_logout():
 
-    connection = pymongo.Connection(connection_string, safe=True)
+    connection = pymongo.MongoClient(connection_string)
 
     cookie = bottle.request.get_cookie("session")
 
@@ -123,7 +123,7 @@ def process_logout():
 @bottle.post('/adduser')
 def process_signup():
 
-    connection = pymongo.Connection(connection_string, safe=True)
+    connection = pymongo.MongoClient(connection_string)
 
     email = bottle.request.forms.get("email")
     username = bottle.request.forms.get("username")
@@ -150,7 +150,7 @@ def process_signup():
 
 # проверяем залогинен ли пользователь и возвращаем username, если пользователь не залогинен – возвращает None
 def login_check():
-    connection = pymongo.Connection(connection_string, safe=True)
+    connection = pymongo.MongoClient(connection_string)
     cookie = bottle.request.get_cookie("session")
 
     if (cookie == None):
@@ -188,7 +188,7 @@ def present_welcome():
 @bottle.post('/upload')
 def do_upload():
     upload = bottle.request.files.get('upload')
-    connection = pymongo.Connection(connection_string, safe=True)
+    connection = pymongo.MongoClient(connection_string)
     db = connection.diploma
     importcol = db.importcol
     reader = csv.DictReader(upload.file, delimiter=';')
@@ -208,5 +208,4 @@ def do_upload():
 	importcol.update(keys, keys, upsert=True, safe=True)
     return "OK" 
 
-bottle.debug(True)
-bottle.run(host='localhost', port=8082)
+bottle.run(host='localhost', port=8082, debug=True)
