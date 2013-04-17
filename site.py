@@ -14,6 +14,10 @@ import user
 
 connection_string = "mongodb://localhost"
 
+@bottle.get('/css/<filename>')
+def server_static(filename):
+    return bottle.static_file('style.css', root='css')
+
 @bottle.get('/')
 def blog_index():
     connection = pymongo.MongoClient(connection_string)

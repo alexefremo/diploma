@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>Диплом Сани Гончарова</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
