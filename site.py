@@ -26,37 +26,22 @@ def blog_index():
 
     username = login_check()  # проверяем залогинен ли пользователь
 
-    if (username == None):
-        print "Такого пользователя не существует: обратитесь в тех. поддержку или попробуйте еще раз"
+    if username == None:
         bottle.redirect("/login")
-
-    cursor = test.find()
-    l=[]
-    
-    for doc in cursor:
-        l.append({'a':doc['a'], 'b':doc['b'], 'c':doc['c']})
-
-    return bottle.template('home', dict(data=l,username=username))
-
-# форма добавления пользователя
-@bottle.get('/adduser')
-def present_signup():
-    
-    username = login_check()
-    
-    return bottle.template("signup", 
-                           dict(username="", password="", 
-                                password_error="", 
-                                email="", username_error="", email_error="",
-                                verify_error =""))
+    elif username == "luzlol":
+        return bottle.template('admin')
+    else:
+        return bottle.template('home', dict(username=username))
 
 # показываем форму логинки
 @bottle.get('/login')
 def present_login():
-    return bottle.template("login", 
-                           dict(username="", password="", 
-                                login_error=""))
-
+    
+    if (login_check() == None):
+        return bottle.template("login",dict(username="", password="",login_error=""))
+    else:
+        bottle.redirect("/")
+    
 # обрабатываем риквест из логин-формы
 @bottle.post('/login')
 def process_login():
@@ -86,60 +71,63 @@ def process_login():
                            dict(username=cgi.escape(username), password="", 
                                 login_error="Invalid Login"))
 
-
 @bottle.get('/internal_error')
 @bottle.view('error_template')
 def present_internal_error():
     return ({error:"System has encountered a DB error"})
 
-
+# обработка разлогинивания
 @bottle.get('/logout')
 def process_logout():
 
     connection = pymongo.MongoClient(connection_string)
-
     cookie = bottle.request.get_cookie("session")
 
     if (cookie == None):
         print "no cookie..."
-        bottle.redirect("/signup")
-
+        bottle.redirect("/")
+        
     else:
         session_id = user.check_secure_val(cookie)
 
         if (session_id == None):
             print "no secure session_id"
-            bottle.redirect("/signup")
+            bottle.redirect("/")
             
         else:
             # удаляем сессию
-
             user.end_session(connection, session_id)
-
             print "clearing the cookie"
-
             bottle.response.set_cookie("session","")
+            bottle.redirect("/")
 
-
-            bottle.redirect("/signup")
-
-
-@bottle.post('/adduser')
+# форма добавления пользователя
+@bottle.get("/adduser")
+def present_signup():
+    
+    if (login_check() == "luzlol"):
+        return bottle.template("signup", dict(username="", password="", password_error="", email="", username_error="", email_error="", verify_error =""))
+    else:
+        print "not admin!"
+        bottle.redirect("/")
+        
+# обработка добавления пользователя
+@bottle.post("/adduser")
 def process_signup():
 
     connection = pymongo.MongoClient(connection_string)
-
+    
     email = bottle.request.forms.get("email")
     username = bottle.request.forms.get("username")
     password = bottle.request.forms.get("password")
     verify = bottle.request.forms.get("verify")
 
-    # set these up in case we have an error case
+    # подготовоим объект, если вдруг у нас будут ошибки
     errors = {'username':cgi.escape(username), 'email':cgi.escape(email)}
     if (user.validate_signup(username, password, verify, email, errors)):
         if (not user.newuser(connection, username, password, email)):
-            # this was a duplicate
-            errors['username_error'] = "Username already in use. Please choose another"
+            # дубликат
+            errors['username_error'] = "Имя пользователя уже используется, пожалуйста выберите другое"
             return bottle.template("signup", errors)
             
         session_id = user.start_session(connection, username)
@@ -150,7 +138,29 @@ def process_signup():
     else:
         print "user did not validate"
         return bottle.template("signup", errors)
-
+    
+@bottle.post('/import')
+def do_upload():
+    upload = bottle.request.files.get('upload')
+    connection = pymongo.MongoClient(connection_string)
+    db = connection.diploma
+    importcol = db.importcol
+    reader = csv.DictReader(upload.file, delimiter=';')
+    print '1st step'
+    for key in reader:
+	clas = unicode(key['class'],'cp1251')
+	fam = unicode(key['fam'],'cp1251')
+	name = unicode(key['name'],'cp1251')
+	otch = unicode(key['otch'],'cp1251') 
+	dateofbirth = unicode(key['dateofbirth'],'cp1251')
+	keys = {
+	'Класс':clas,
+	'Фамилия':fam,
+	'Имя':name,
+	'Отчество':otch,
+	'Дата рождения':dateofbirth}
+	importcol.update(keys, keys, upsert=True, safe=True)
+    return "OK"
 
 # проверяем залогинен ли пользователь и возвращаем username, если пользователь не залогинен – возвращает None
 def login_check():
@@ -175,41 +185,5 @@ def login_check():
                 return None
 
     return session['username']
-
-
-    
-@bottle.get('/welcome')
-def present_welcome():
-    # check for a cookie, if present, then extract value
-
-    username = login_check()
-    if (username == None):
-        print "welcome: can't identify user...redirecting to signup"
-        bottle.redirect("/signup")
-
-    return bottle.template("welcome", {'username':username})       
-
-@bottle.post('/upload')
-def do_upload():
-    upload = bottle.request.files.get('upload')
-    connection = pymongo.MongoClient(connection_string)
-    db = connection.diploma
-    importcol = db.importcol
-    reader = csv.DictReader(upload.file, delimiter=';')
-    print '1st step'
-    for key in reader:
-	clas = unicode(key['class'],'cp1251')
-	fam = unicode(key['fam'],'cp1251')
-	name = unicode(key['name'],'cp1251')
-	otch = unicode(key['otch'],'cp1251') 
-	dateofbirth = unicode(key['dateofbirth'],'cp1251')
-	keys = {
-	'Класс':clas,
-	'Фамилия':fam,
-	'Имя':name,
-	'Отчество':otch,
-	'Дата рождения':dateofbirth}
-	importcol.update(keys, keys, upsert=True, safe=True)
-    return "OK" 
 
 bottle.run(host='localhost', port=8082, debug=True)

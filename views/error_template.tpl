@@ -4,7 +4,6 @@
 <title>Internal Error</title>
 </head>
 <body>
-
 Oops..<br>
 {{error}
 </body>

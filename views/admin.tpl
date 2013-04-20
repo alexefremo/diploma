@@ -7,12 +7,14 @@
 <body>
 Выйти из системы — <a href="/logout">Logout</a>
 
-<h1>Здравствуйте, {{username}}!</h1>
+<h1>Панель администратора</h1>
 
 <ul>
 <li><a href="/import">Испорт данных</a></li>
 <li><a href="/explore">Просмотр данных</a></li>
-<li><a href="/edit">Редактирование данных</a></li>
+<li><a href="/adduser">Редактирование данных</a></li>
+<li><a href="/adduser">Добавить пользователя</a></li>
+<li><a href="//localhost:28017">Мониторинг базы данных</a></li>
 </ul>
 
 </body>
