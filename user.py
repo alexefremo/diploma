@@ -50,7 +50,7 @@ def validate_signup(username, password, verify, email, errors):
     return True
 
 def validate_login(connection, username, password, user_record):
-    db = connection.blog
+    db = connection.diploma
     users = db.users
 
     try:
@@ -74,7 +74,7 @@ def validate_login(connection, username, password, user_record):
     return True
 
 def start_session(connection, username):
-    db = connection.blog
+    db = connection.diploma
     sessions = db.sessions
 
     session = {'username':username}
@@ -88,7 +88,7 @@ def start_session(connection, username):
     return str(session['_id'])
 
 def end_session(connection, session_id):
-    db = connection.blog
+    db = connection.diploma
     sessions = db.sessions
 
     try:
@@ -100,7 +100,7 @@ def end_session(connection, session_id):
 
 def get_session(connection, session_id):
 
-    db = connection.blog
+    db = connection.diploma
     sessions = db.sessions
 
     try:
@@ -120,7 +120,7 @@ def newuser(connection, username, password, email):
     if (email != ""):
         user['email'] = email
 
-    db = connection.blog
+    db = connection.diploma
     users = db.users
 
     try:
@@ -135,7 +135,7 @@ def newuser(connection, username, password, email):
     return True
 
 def uid_to_username(connection, uid):
-    db = connection.blog
+    db = connection.diploma
     users = db.users
     
     user = users.find_one({'uid':int(uid)})

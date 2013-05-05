@@ -1,7 +1,8 @@
 <!doctype HTML>
 <html>
 <head>
-<title>Internal Error</title>
+<title>Внутренняя ошибка</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 Oops..<br>
