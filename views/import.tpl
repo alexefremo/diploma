@@ -5,13 +5,29 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-Назад — <a href="/">на главную</a>
 
-<h1>Импортируем данные</h1>
+<header>
+    <div class="meta-link">Назад — <a href="/">на главную</a></div>
+    <h1 class="main-title">Импортируем данные</h1>
+</header>
 
-<form method="post" enctype="multipart/form-data">
-  <input type="file" name="upload" />
-  <input type="submit" />
-</form>
+<section id="content">
+    <form method="post" enctype="multipart/form-data" class="form-box content-box">
+        <ul>
+            <li><input type="file" name="upload"></li>
+            <li><input type="submit" class="form-submit"></li>
+        </ul>
+    </form>
+</section>    
+
+<footer>
+    © 2013 Саня Гончаров. Челябинск    
+</footer>
+    
+%if data == "ok":
+    <script>
+        window.alert("ok");
+    </script>
+
 </body>
 </html>

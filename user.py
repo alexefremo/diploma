@@ -34,7 +34,7 @@ def validate_signup(username, password, verify, email, errors):
     
 
     if not USER_RE.match(username):
-        errors['username_error']  = "неподходящее имя пользователя, попробуйте только буквы и цифры"
+        errors['username_error']  = "неподходящее имя, пробуйте только буквы и цифры"
         return False
 
     if not PASS_RE.match(password):

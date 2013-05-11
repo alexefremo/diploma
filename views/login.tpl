@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Login</title>
+<title>Вход в систему</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-Добро пожаловать, зайдите в свою учетную запись
 
-<h2>Вход в систему</h2>
-<form method="post">
-<table>
-<tr>
-<td class="label">Логин:</td>
-<td><input type="text" name="username" value="{{username}}"></td>
-<td class="error"></td>
-</tr>
-<tr>
-<td class="label">Пароль:</td>
-<td><input type="password" name="password" value=""></td>
-<td class="error">{{login_error}}</td>
-</tr>
-</table>
-<input type="submit">
-</form>
+<header>
+    <h1>Вход в систему</h1>
+</header>    
+
+<section id="content">
+    <form method="post" class="form-box content-box">
+        <ul>
+            <li>Логин</li>
+            <li><input type="text" name="username" value="{{username}}"></li>
+            <li>Пароль</li>
+            <li><input type="password" name="password" value=""></li>
+            <li><span class="error">{{login_error}}</span></li>
+            <li><input type="submit" class="form-submit"></li>
+        </ul>
+    </form>
+</section>
+
+<footer>
+    © 2013 Саня Гончаров. Челябинск    
+</footer>
+
 </body>
 </html>

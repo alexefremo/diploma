@@ -16,8 +16,20 @@ connection_string = "mongodb://localhost"
 
 # прописываем обработку статического css-файла
 @bottle.get('/css/<filename>')
-def server_static(filename):
+def static_css(filename):
     return bottle.static_file('style.css', root='css')
+@bottle.get('/img/<filename>')
+def static_bg(filename):
+    return bottle.static_file('bg.png', root='img')
+@bottle.get('/fonts/<filename>')
+def static_font1(filename):
+    return bottle.static_file('IdealistSans.ttf', root='fonts')
+@bottle.get('/fonts/<filename>')
+def static_font2(filename):
+    return bottle.static_file('IdealistSans.otf', root='fonts')
+@bottle.get('/fonts/<filename>')
+def static_font3(filename):
+    return bottle.static_file('IdealistSans.eot', root='fonts')
 
 # выбираем какой шаблон показывать на главной и отправляем на /login если пользователь не зашел
 @bottle.get('/')
@@ -71,7 +83,7 @@ def process_login():
     else:
         return bottle.template("login", 
                            dict(username=cgi.escape(username), password="", 
-                                login_error="Invalid Login"))
+                                login_error="неверно"))
 
 @bottle.get('/internal_error')
 @bottle.view('error_template')
@@ -129,7 +141,7 @@ def process_signup():
     if (user.validate_signup(username, password, verify, email, errors)):
         if (not user.newuser(connection, username, password, email)):
             # дубликат
-            errors['username_error'] = "Имя пользователя уже используется, пожалуйста выберите другое"
+            errors['username_error'] = "Имя уже используется"
             return bottle.template("signup", errors)
             
         session_id = user.start_session(connection, username)
@@ -144,9 +156,8 @@ def process_signup():
 # форма импорта файла
 @bottle.get('/import')
 def present_import():
-    
     if (login_check() == "luzlol"):
-        return bottle.template("import")
+        return bottle.template("import", data="")
     
 # обработка импорта файла
 @bottle.post('/import')
@@ -154,9 +165,8 @@ def do_upload():
     upload = bottle.request.files.get('upload')
     connection = pymongo.MongoClient(connection_string)
     db = connection.diploma
-    importcol = db.importcol
+    dataset = db.dataset
     reader = csv.DictReader(upload.file, delimiter=';')
-    # наименование;инвентарный-номер;дата-поступления;начальное-количество;цена;дата-выдачи;количество-выдано
     for key in reader:
         item = unicode(key['0'],'cp1251')
         number = unicode(key['1'],'cp1251')
@@ -165,6 +175,8 @@ def do_upload():
         price = unicode(key['4'],'cp1251')
         dateout = unicode(key['5'],'cp1251')
         amountend = unicode(key['6'],'cp1251')
+        building = unicode(key['7'],'cp1251')
+        guy = unicode(key['8'],'cp1251')
         keys = {
         'Наименование':item,
         'Инвентарный номер':number,
@@ -172,10 +184,54 @@ def do_upload():
         'Начальное количество':amountstart,
         'Цена':price,
         'Дата выдачи':dateout,
-        'Выдано количество':amountend
+        'Выдано количество':amountend,
+        'Здание':building,
+        'Ответственный':guy
         }
-        importcol.update(keys, keys, upsert=True, safe=True)
-    return "OK <a href=\"/\">На главную</a>"
+        dataset.update(keys, keys, upsert=True, safe=True)
+    return bottle.template("import", data="ok")
+
+@bottle.get('/explore')
+def explore_present():
+    connection = pymongo.MongoClient(connection_string)
+    db = connection.diploma
+    dataset = db.dataset
+    cursor = dataset.find({},{"Здание".decode('utf-8'):1, "_id":0})
+    m=[]
+    for doc in cursor:
+        if doc not in m:
+            m.append(doc)
+    cursor = dataset.find({},{"Ответственный".decode('utf-8'):1, "_id":0})
+    n=[]
+    for doc in cursor:
+        if doc not in n:
+            n.append(doc)        
+    
+    return bottle.template('explore', dict(data='', buildings=m, rooms=n))
+
+@bottle.post('/explore')
+def explore_proccess():
+    building = bottle.request.forms.get("building")
+    room = bottle.request.forms.get("room")
+    connection = pymongo.MongoClient(connection_string)
+    db = connection.diploma
+    dataset = db.dataset
+    cursor = dataset.find({"Здание".decode('utf-8'):building,"Ответственный".decode('utf-8'):room})
+    l=[]
+    for doc in cursor:
+        l.append(doc)
+    cursor2 = dataset.find({},{"Здание".decode('utf-8'):1, "_id":0})
+    m=[]
+    for doc in cursor2:
+        if doc not in m:
+            m.append(doc)
+    cursor = dataset.find({},{"Ответственный".decode('utf-8'):1, "_id":0})
+    n=[]
+    for doc in cursor:
+        if doc not in n:
+            n.append(doc) 
+    
+    return bottle.template('explore', dict(data=l, buildings=m, rooms=n))
 
 # проверяем залогинен ли пользователь и возвращаем username, если пользователь не залогинен – возвращает None
 def login_check():

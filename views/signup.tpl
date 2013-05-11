@@ -5,35 +5,35 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-Назад — <a href="/">на главную</a>
+    
+<header>
+    <div class="meta-link">Назад — <a href="/">на главную</a></div>
+    <h1 class="main-title">Добавить пользователя</h1>
+</header>   
 
-<h1>Добавить пользователя</h1>
+<section id="content">
+    <form method="post" class="form-box content-box">
+        <ul>
+            <li>Имя пользователя</li>
+            <li><input type="text" name="username" value="{{username}}"></li>
+            <li class="error">{{username_error}}</li>
+            <li>Пароль</li>
+            <li><input type="password" name="password" value=""></li>
+            <li class="error">{{password_error}}</li>
+            <li>Подтвердите пароль</li>
+            <li><input type="password" name="verify" value=""></li>
+            <li class="error">{{verify_error}}</li>
+            <li>Email (optional)</li>
+            <li><input type="text" name="email" value="{{email}}"></li>
+            <li class="error">{{email_error}}</li>
+            <li><input type="submit" class="form-submit"></li>
+        </ul>
+    </form>
+</section>
 
-<form method="post">
-<table>
-<tr>
-<td class="label">Username</td>
-<td><input type="text" name="username" value="{{username}}"></td>
-<td class="error">{{username_error}}</td>
-</tr>
-<tr>
-<td class="label">Password</td>
-<td><input type="password" name="password" value=""></td>
-<td class="error">{{password_error}}</td>
-</tr>
-<tr>
-<td class="label">Verify Password</td>
-<td><input type="password" name="verify" value=""></td>
-<td class="error">{{verify_error}}</td>
-</tr>
-<tr>
-<td class="label">Email (optional)</td>
-<td><input type="text" name="email" value="{{email}}"></td>
-<td class="error">{{email_error}}</td>
-</tr>
-</table>
-<input type="submit">
-</form>
-  
+<footer>
+    © 2013 Саня Гончаров. Челябинск    
+</footer>
+
 </body>
 </html>
